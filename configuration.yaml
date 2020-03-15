@@ -1,0 +1,187 @@
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+# http:
+#   base_url: example.duckdns.org:8123
+#Wake on LAN
+wake_on_lan:
+
+#Mobile app
+mobile_app:
+
+#MySQL Database
+recorder:
+  purge_keep_days: 7
+  db_url: !secret mysql_info
+
+sun:
+
+#Enables the streams
+stream:
+
+#Cameras
+camera:
+  - platform: generic
+    name: Driveway
+    still_image_url: "http://192.168.1.202/image/garage"
+    stream_source: "http://192.168.1.202/h264/garage/temp.m3u8"
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+#Weather
+weather:
+  - platform: darksky
+    api_key: c8dd29c13bf4b24234f5ac9d8e2b7d98
+    mode: daily
+#Alarm System
+elkm1:
+  host: !secret elk_ip
+  temperature_unit: C
+  area:
+    exclude: [2-8]
+  zone:
+    exclude: [1-16,60-208]
+  keypad:
+    exclude: [3-16]
+  counter:
+    enabled: false
+  task:
+    enabled: false
+  output:
+    enabled: false
+  setting:
+    enabled: false
+  thermostat:
+    enabled: false
+  plc:
+    enabled: false
+
+#Kodi
+media_player:
+  - platform: kodi
+    host: !secret kodimb_ip
+    port: 8080
+    username: !secret kodimb_user
+    password: !secret kodimb_pass
+    name: Master Bedroom Kodi
+  - platform: kodi
+    host: !secret kodigr_ip
+    port: 8080
+    username: !secret kodigr_user
+    password: !secret kodigr_pass
+    name: Great Room Kodi
+
+#MYQ Garage
+cover:
+  - platform: myq
+    username: !secret myq_user
+    password: !secret myq_pass
+    type: chamberlain
+
+#TV
+webostv:
+  host: 192.168.0.120
+
+#Notify Platform
+notify:
+  - platform: pushover
+    name: Push_Hass
+    api_key: !secret pushover_ha_api
+    user_key: !secret pushover_user
+  - platform: webostv
+    host: 192.168.1.120
+    name: Great Room TV
+
+#Harmony Hub
+remote:
+  - platform: harmony
+    name: Great Room Harmony
+    host: !secret harmony_gr
+  - platform: harmony
+    name: Master Bedroom Harmony
+    host: !secret harmony_mb
+
+#Garbage Pickup Calendar
+google:
+  client_id: !secret google_cal_id
+  client_secret: !secret google_cal_secret
+
+sensor:
+  # Weather prediction
+  - platform: darksky
+    api_key: c8dd29c13bf4b24234f5ac9d8e2b7d98
+    forecast:
+      - 7
+    monitored_conditions:
+      - summary
+      - icon
+      - temperature
+      - apparent_temperature
+      - temperature_high
+      - temperature_low
+      - precip_type
+      - precip_probability
+      - precip_accumulation
+      - wind_speed
+      - humidity
+      - daily_summary
+
+#Garbage
+  - platform: template
+    sensors:
+      collection_date:
+        friendly_name: "Waste Collection"
+        entity_id: sensor.date
+        #value_template: "{{state_attr(states.calendar.green_bin.attributes.start_time)}}"
+        #value_template: >-
+        #  {{(as_timestamp(states.calendar.green_bin.attributes.start_time) - as_timestamp(now())) }}
+        value_template: >
+          {% set pickupday = strptime(states.calendar['green_bin'].attributes.start_time, "%Y-%m-%d %H:%M:%S").strftime("%A") %}
+          {% set pickupday2 = strptime(states.calendar['green_bin'].attributes.start_time, "%Y-%m-%d %H:%M:%S").strftime("%b %d, %Y") %}
+          {% if as_timestamp(states.calendar.green_bin.attributes.start_time) / 86400 - as_timestamp(as_timestamp(now()) | timestamp_custom("%Y-%m-%d 00:00:00",true)) / 86400 == 0.0 %}
+            Today 
+          {% elif as_timestamp(states.calendar.green_bin.attributes.start_time) / 86400 - as_timestamp(as_timestamp(now()) | timestamp_custom("%Y-%m-%d 00:00:00",true)) / 86400 == 1.0 %}
+            Tomorrow
+          {% elif as_timestamp(states.calendar.green_bin.attributes.start_time) / 86400 - as_timestamp(as_timestamp(now()) | timestamp_custom("%Y-%m-%d 00:00:00",true)) / 86400 >= 2.0 %}
+            {{ pickupday }}
+          {% elif as_timestamp(states.calendar.green_bin.attributes.start_time) / 86400 - as_timestamp(as_timestamp(now()) | timestamp_custom("%Y-%m-%d 00:00:00",true)) / 86400 >= 7.0 %}
+            {{ pickupday2 }}
+          {% else %}
+            Unknown
+          {% endif %}
+        icon_template: mdi:calendar
+      garbage:
+        friendly_name: "Garage Collection"
+        value_template: "{{ is_state('calendar.garbage_collection', 'on') }}"
+        entity_id: sensor.date
+        icon_template: mdi:delete
+      blue_box:
+        friendly_name: "Blue Box"
+        value_template: "{{ is_state('calendar.blue_box', 'on') }}"
+        entity_id: sensor.date
+        icon_template: mdi:recycle
+      green_bin:
+        friendly_name: "Green Bin"
+        value_template: "{{ is_state('calendar.green_bin', 'on') }}"
+        entity_id: sensor.date
+        icon_template: mdi:delete-variant
+      garbage_date:
+        friendly_name: "Garbage Day Pickup"
+        icon_template: mdi:calendar
+        value_template: "{{ as_timestamp(states.calendar.garbage_collection.attributes.start_time) | timestamp_custom('%B %d') }}"
+      #garbage_tag:        
+        #value_template: "{{ as_timestamp(states.calendar.garbage_collection.attributes.start_time) | timestamp_custom('%w') }}"
+      garbage_days:
+        friendly_name: "Garbage Day Countdown"
+        icon_template: mdi:delete
+        unit_of_measurement: 'days'
+        value_template: "{{ ( ( (as_timestamp(states.calendar.garbage_collection.attributes.start_time) + 64800) - as_timestamp(states.sensor.date.state+' '+'00:00:00') ) / 86400 ) | int }}"
