@@ -6,6 +6,8 @@
 !*.yaml
 !.gitignore
 !*.md
+!*.conf
+!*.xml
 
 # Ignore folders.
 .storage
@@ -16,3 +18,4 @@
 ip_bans.yaml
 secrets.yaml
 known_devices.yaml
+google_calendars.yaml
