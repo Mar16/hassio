@@ -27,6 +27,10 @@ camera:
     name: Driveway
     still_image_url: "http://192.168.1.202/image/garage"
     stream_source: "http://192.168.1.202/h264/garage/temp.m3u8"
+  - platform: generic
+    name: Backyard
+    still_image_url: "http://192.168.1.202/image/backyard"
+    stream_source: "http://192.168.1.202/h264/backyard/temp.m3u8"
 
 # Text to speech
 tts:
