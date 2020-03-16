@@ -31,6 +31,22 @@ camera:
     name: Backyard
     still_image_url: "http://192.168.1.202/image/backyard"
     stream_source: "http://192.168.1.202/h264/backyard/temp.m3u8"
+  - platform: generic
+    name: Backyard
+    still_image_url: "http://192.168.1.202/image/basement"
+    stream_source: "http://192.168.1.202/h264/basement/temp.m3u8"
+  - platform: generic
+    name: Backyard
+    still_image_url: "http://192.168.1.202/image/backdoor"
+    stream_source: "http://192.168.1.202/h264/backdoor/temp.m3u8"
+  - platform: generic
+    name: Backyard
+    still_image_url: "http://192.168.1.202/image/side"
+    stream_source: "http://192.168.1.202/h264/side/temp.m3u8"
+  - platform: generic
+    name: Backyard
+    still_image_url: "http://192.168.1.202/image/sidewalk"
+    stream_source: "http://192.168.1.202/h264/sidewalk/temp.m3u8"
 
 # Text to speech
 tts:
