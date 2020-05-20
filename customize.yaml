@@ -1,0 +1,15 @@
+switch.zone_1:
+  friendly_name: Zone One
+  icon: mdi:numeric-1-box
+#switch.zone_2:
+#  friendly_name: Zone Two
+#  icon: mdi:numeric-2-box
+switch.xbox_one:
+  friendly_name: Xbox One
+  icon: mdi:xbox
+switch.ps4:
+  friendly_name: Playstation
+  icon: mdi:playstation
+switch.tv:
+  friendly_name: TV
+  icon: mdi:television

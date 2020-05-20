@@ -1,0 +1,7 @@
+  denon_receiver:
+    name: Zone 1 Volume
+    initial: 35
+    min: 0
+    max: 100
+    step: .5
+    unit_of_measurement: dB

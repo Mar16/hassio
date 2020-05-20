@@ -40,6 +40,21 @@
     ignore_availability: true
     name: Trash Pick-Up
     track: true
+  - device_id: garbage_collection
+    ignore_availability: true
+    name: Garbage
+    track: true
+    search: "#Garbage"
+  - device_id: blue_box
+    ignore_availability: true
+    name: Blue Box
+    track: true
+    search: "#Blue"
+  - device_id: green_bin
+    ignore_availability: true
+    name: Green Bin
+    track: true
+    search: "#Green"
 
 - cal_id: o3vaverb7rm0qncb4omv54vrac@group.calendar.google.com
   entities:

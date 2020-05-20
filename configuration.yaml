@@ -2,6 +2,11 @@
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
+homeassistant:
+  customize: !include customize.yaml
+  #Zwave Lock Setup
+  packages: !include_dir_named packages
+
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 # http:
 #   base_url: example.duckdns.org:8123
@@ -25,6 +30,13 @@ panel_custom:
     sidebar_icon: mdi:access-point-network
     url_path: zwave
 
+#Custom Iframe
+panel_iframe:
+  tasmoadmin:
+    title: TasmoAdmin
+    icon: mdi:lightbulb-on
+    url: http://192.168.1.73:9541
+
 #Enables the streams
 stream:
 
@@ -44,8 +56,8 @@ camera:
     stream_source: "http://192.168.1.202/h264/basement/temp.m3u8"
   - platform: generic
     name: Back Door
-    still_image_url: "http://192.168.1.202/image/backdoor"
-    stream_source: "http://192.168.1.202/h264/backdoor/temp.m3u8"
+    still_image_url: "http://192.168.1.202/image/Backdoor"
+    stream_source: "http://192.168.1.202/h264/Backdoor/temp.m3u8"
   - platform: generic
     name: Side House
     still_image_url: "http://192.168.1.202/image/side"
@@ -59,16 +71,24 @@ camera:
 tts:
   - platform: google_translate
 
+
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
+#Media Cards
+switch: !include switch.yaml
+input_number: !include input_number.yaml
+frontend:
+  themes: !include_dir_merge_named themes
 
 #Weather
 weather:
   - platform: darksky
     api_key: c8dd29c13bf4b24234f5ac9d8e2b7d98
     mode: daily
+  - platform: environment_canada
+#s0000582 Newmarket ON 44.06N 79.46W
 #Alarm System
 elkm1:
   host: !secret elk_ip
@@ -106,6 +126,12 @@ media_player:
     username: !secret kodigr_user
     password: !secret kodigr_pass
     name: Great Room Kodi
+#Denon
+  - platform: denonavr
+    host: !secret denonfravr
+    name: Family Room AVR
+    show_all_sources: true
+    timeout: 5
 
 #MYQ Garage
 cover:
@@ -116,7 +142,7 @@ cover:
 
 #TV
 webostv:
-  host: 192.168.0.120
+  host: 192.168.107.25
 
 #Notify Platform
 notify:
@@ -125,14 +151,14 @@ notify:
     api_key: !secret pushover_ha_api
     user_key: !secret pushover_user
   - platform: webostv
-    host: 192.168.1.120
-    name: Great Room TV
+    host: 192.168.107.25
+    name: Family Room TV
 
 #Harmony Hub
 remote:
   - platform: harmony
-    name: Great Room Harmony
-    host: !secret harmony_gr
+    name: Family Room Harmony
+    host: !secret harmony_fr
   - platform: harmony
     name: Master Bedroom Harmony
     host: !secret harmony_mb
@@ -207,8 +233,49 @@ sensor:
         value_template: "{{ as_timestamp(states.calendar.garbage_collection.attributes.start_time) | timestamp_custom('%B %d') }}"
       #garbage_tag:        
         #value_template: "{{ as_timestamp(states.calendar.garbage_collection.attributes.start_time) | timestamp_custom('%w') }}"
-      garbage_days:
-        friendly_name: "Garbage Day Countdown"
-        icon_template: mdi:delete
-        unit_of_measurement: 'days'
-        value_template: "{{ ( ( (as_timestamp(states.calendar.garbage_collection.attributes.start_time) + 64800) - as_timestamp(states.sensor.date.state+' '+'00:00:00') ) / 86400 ) | int }}"
+      #garbage_days:
+      #  friendly_name: "Garbage Day Countdown"
+      #  icon_template: mdi:delete
+      #  unit_of_measurement: 'days'
+      #  value_template: "{{ ( ( (as_timestamp(states.calendar.garbage_collection.attributes.start_time) + 64800) - as_timestamp(states.sensor.date.state+' '+'00:00:00') ) / 86400 ) | int }}"
+
+#Salt Sensor
+  - platform: template
+    sensors:
+      salt_level_percent:
+        friendly_name: "Salt Level"
+        value_template: "{{ states('sensor.saltlevel_in_percent')|round }}"
+        unit_of_measurement: '%'
+
+#Harmony Power Off Sensor
+  - platform: template
+    sensors:
+      harmony_activity:
+        value_template: >
+          {% if is_state("remote.family_room_harmony", 'on') %}
+            {{ states.remote.family_room_harmony.attributes.current_activity }}
+          {% else %}
+            PowerOff
+          {% endif %}
+
+#Zwave Lock
+binary_sensor:
+  - platform: template
+    sensors:
+      allow_automation:
+        friendly_name: "Allow Automation"
+        value_template: "{{ is_state('input_boolean.allow_automation_execution', 'on') }}"
+
+      system_ready:
+        friendly_name: "System ready"
+        value_template: "{{ is_state('input_boolean.system_ready', 'on') }}"
+        device_class: moving
+
+input_boolean:
+  allow_automation_execution:
+    name: 'Allow Automation'
+    initial: off
+
+  system_ready:
+    name: 'System Ready'
+    initial: off
