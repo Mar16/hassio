@@ -35,7 +35,7 @@ panel_iframe:
   tasmoadmin:
     title: TasmoAdmin
     icon: mdi:lightbulb-on
-    url: http://192.168.1.73:9541
+    url: !secret tasmotaip
 
 #Enables the streams
 stream:
@@ -44,28 +44,28 @@ stream:
 camera:
   - platform: generic
     name: Driveway
-    still_image_url: "http://192.168.1.202/image/garage"
-    stream_source: "http://192.168.1.202/h264/garage/temp.m3u8"
+    still_image_url: !secret drivewaystill
+    stream_source:  !secret drivewaystream
   - platform: generic
     name: Backyard
-    still_image_url: "http://192.168.1.202/image/backyard"
-    stream_source: "http://192.168.1.202/h264/backyard/temp.m3u8"
+    still_image_url: !secret backyardstill
+    stream_source: !secret backyardstream
   - platform: generic
     name: Basement
-    still_image_url: "http://192.168.1.202/image/basement"
-    stream_source: "http://192.168.1.202/h264/basement/temp.m3u8"
+    still_image_url: !secret basementstill
+    stream_source: !secret basementstream
   - platform: generic
     name: Back Door
-    still_image_url: "http://192.168.1.202/image/Backdoor"
-    stream_source: "http://192.168.1.202/h264/Backdoor/temp.m3u8"
+    still_image_url: !secret backdoorstill
+    stream_source: !secret backdoorstream
   - platform: generic
     name: Side House
-    still_image_url: "http://192.168.1.202/image/side"
-    stream_source: "http://192.168.1.202/h264/side/temp.m3u8"
+    still_image_url: !secret sidehousestill
+    stream_source: !secret sidehousestream
   - platform: generic
     name: Sidewalk
-    still_image_url: "http://192.168.1.202/image/sidewalk"
-    stream_source: "http://192.168.1.202/h264/sidewalk/temp.m3u8"
+    still_image_url: !secret sidewalkstill
+    stream_source: !secret sidewalkstream
 
 # Text to speech
 tts:
@@ -85,10 +85,10 @@ frontend:
 #Weather
 weather:
   - platform: darksky
-    api_key: c8dd29c13bf4b24234f5ac9d8e2b7d98
+    api_key: !secret darkskyapi
     mode: daily
   - platform: environment_canada
-#s0000582 Newmarket ON 44.06N 79.46W
+
 #Alarm System
 elkm1:
   host: !secret elk_ip
@@ -142,7 +142,7 @@ cover:
 
 #TV
 webostv:
-  host: 192.168.107.25
+  host: !secret lgwebtv
 
 #Notify Platform
 notify:
@@ -151,7 +151,7 @@ notify:
     api_key: !secret pushover_ha_api
     user_key: !secret pushover_user
   - platform: webostv
-    host: 192.168.107.25
+    host: !secret lgwebtv
     name: Family Room TV
 
 #Harmony Hub
@@ -171,7 +171,7 @@ google:
 sensor:
   # Weather prediction
   - platform: darksky
-    api_key: c8dd29c13bf4b24234f5ac9d8e2b7d98
+    api_key: !secret darkskyapi
     forecast:
       - 7
     monitored_conditions:
